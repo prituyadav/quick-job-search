@@ -37,33 +37,24 @@ public class JobService {
         this.restTemplate = new RestTemplate();
     }
 
-    public List<String> parseResume(String resumeText) {
+    public List<String> parseResumeAndFindJobOpenings(String resumeText) {
         try {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "gpt-4o");
-
             requestBody.put("temperature", 0.8);
-
             List<Map<String, String>> messages = new ArrayList<>();
-            messages.add(Map.of("role", "user", "content", resumeText + " give all the current openings"));
+            messages.add(Map.of("role", "user", "content", resumeText + "job-openings"));
             requestBody.put("messages", messages);
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + langDbApiKey);
             headers.set("X-Project-Id", langDbProjectId);
-
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(langDbApiUrl, entity, String.class);
 
             return extractJobListings(response.getBody());
-
-        } catch (HttpClientErrorException e) {
-            System.err.println("LangDB API Error: " + e.getResponseBodyAsString());
-            throw new RuntimeException("LangDB API error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
         } catch (Exception e) {
-            System.err.println("Unexpected Error: " + e.getMessage());
-            throw new RuntimeException("Unexpected error while processing LangDB API response: " + e.getMessage());
+            throw new RuntimeException("Error processing LangDB API : " + e.getMessage());
         }
     }
 

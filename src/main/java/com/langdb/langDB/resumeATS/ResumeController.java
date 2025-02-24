@@ -29,7 +29,7 @@ public class ResumeController {
     public ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
         try {
             String resumeText = extractTextFromPDF(file);
-            List<String> response = jobService.parseResume(resumeText);
+            List<String> response = jobService.parseResumeAndFindJobOpenings(resumeText);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
